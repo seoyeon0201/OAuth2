@@ -1,10 +1,14 @@
 package com.example.OAuth2.login.filter;
 
+import com.example.OAuth2.jwt.filter.JwtAuthenticationProcessingFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -15,6 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@Slf4j
 public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     private static final String DEFAULT_LOGIN_REQUEST_URL = "/login";   //"/login"으로 오는 요청 처리
     private static final String HTTP_METHOD = "POST";   //로그인 HTTP 메소드는 POST
@@ -29,6 +34,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
     public CustomJsonUsernamePasswordAuthenticationFilter(ObjectMapper objectMapper) {
         super(DEFAULT_LOGIN_PATH_REQUEST_MATCHER);
         this.objectMapper = objectMapper;
+        log.info("6ObjectMapper");
     }
 
     /*
@@ -39,6 +45,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
         if (request.getContentType() == null || !request.getContentType().equals(CONTENT_TYPE)) {
             throw new AuthenticationServiceException("Authentication Content-Type not supported: "+ request.getContentType());
         }
+        log.info("7CustomJsonUsernamePassworAuthenticationFilter");
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
 

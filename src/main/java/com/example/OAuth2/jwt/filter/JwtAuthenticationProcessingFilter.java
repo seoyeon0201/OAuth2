@@ -26,7 +26,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     //"/login"으로 들어오는 요청은 제외. Filter 작동 X
     private static final String NO_CHECK_URL = "/login";
-
+    private static final String NO_CHECK_URL2 = "/h2-console";
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
@@ -35,11 +35,12 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // "/login"의 경우 해당 필터 호출
-        if (request.getRequestURI().equals(NO_CHECK_URL)) {
+        if (request.getRequestURI().equals(NO_CHECK_URL) || request.getRequestURI().startsWith(NO_CHECK_URL2)) {
             filterChain.doFilter(request, response);
             return ;
         }
 
+        log.info("1doFilterInternal", request, response);
         // refreshToken 추출
         String refreshToken = jwtService.extractRefreshToken(request)
                 .filter(jwtService::isTokenValid)
@@ -67,6 +68,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     refreshToken으로 user 정보 찾기 & accessToken과 refreshToken 재발급
      */
     public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
+        log.info("2checkRefreshTokenAndReIssuAccessToken", response);
         userRepository.findByRefreshToken(refreshToken)
                 .ifPresent(user -> {
                     String reIssueRefreshToken = reIssueRefreshToken(user);
@@ -79,6 +81,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     refreshToken 재발급 & DB에 refreshToken 업데이트
      */
     private String reIssueRefreshToken(User user) {
+        log.info("3reIssueRefreshToken");
         String reIssuedRefreshToken = jwtService.createRefreshToken();
         user.updateRefreshToken(reIssuedRefreshToken);
         userRepository.saveAndFlush(user);
@@ -89,7 +92,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     accessToken 체그 & 인증 처리
      */
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("checkAccessTokenAndAuthentication 호출");
+        log.info("4checkAccessTokenAndAuthentication", request, response);
         jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
                 .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
@@ -102,6 +105,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     인증 허가
      */
     public void saveAuthentication(User myUser) {
+        log.info("5saveAuthentication");
         String password = myUser.getPassword();
 
         // 소셜로그인의 경우 password가 null. 소셜로그인은 나중에 처리

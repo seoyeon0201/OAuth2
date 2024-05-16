@@ -56,6 +56,7 @@ public class JwtService {
     AccessToken 생성
      */
     public String createAccessToken(String email) {
+
         Date now = new Date();
         return JWT.create()
                 .withSubject(ACCESS_TOKEN_SUBJECT)
@@ -69,6 +70,7 @@ public class JwtService {
     RefreshToken 생성
      */
     public String createRefreshToken() {
+
         Date now = new Date();
         return JWT.create()
                 .withSubject(REFRESH_TOKEN_SUBJECT)
@@ -80,6 +82,7 @@ public class JwtService {
     AccessToken Header에 실어 보내기
      */
     public void sendAccessToken(HttpServletResponse response, String accessToken) {
+
         response.setStatus(HttpServletResponse.SC_OK);
 
         response.setHeader(accessHeader, accessToken);
@@ -90,6 +93,7 @@ public class JwtService {
     AccessToken + RefreshToken Header에 실어 보내기
      */
     public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
+
         response.setStatus(HttpServletResponse.SC_OK);
 
         setAccessTokenHeader(response, accessToken);
@@ -103,6 +107,7 @@ public class JwtService {
     헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
      */
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
+
         return Optional.ofNullable(request.getHeader(refreshHeader))
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));
@@ -114,6 +119,7 @@ public class JwtService {
     헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
      */
     public Optional<String> extractAccessToken(HttpServletRequest request) {
+
         return Optional.ofNullable(request.getHeader(accessHeader))
                 .filter(accessToken -> accessToken.startsWith(BEARER))
                 .map(accessToken -> accessToken.replace(BEARER, ""));
