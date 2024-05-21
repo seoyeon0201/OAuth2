@@ -27,6 +27,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     //"/login"으로 들어오는 요청은 제외. Filter 작동 X
     private static final String NO_CHECK_URL = "/login";
     private static final String NO_CHECK_URL2 = "/h2-console";
+
     private final JwtService jwtService;
     private final UserRepository userRepository;
 

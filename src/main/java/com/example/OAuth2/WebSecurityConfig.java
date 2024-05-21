@@ -6,6 +6,9 @@ import com.example.OAuth2.login.filter.CustomJsonUsernamePasswordAuthenticationF
 import com.example.OAuth2.login.handler.LoginFailureHandler;
 import com.example.OAuth2.login.handler.LoginSuccessHandler;
 import com.example.OAuth2.login.service.LoginService;
+import com.example.OAuth2.oauth2.handler.OAuth2LoginFailureHandler;
+import com.example.OAuth2.oauth2.handler.OAuth2LoginSuccessHandler;
+import com.example.OAuth2.oauth2.service.CustomOAuth2UserService;
 import com.example.OAuth2.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
@@ -19,10 +22,10 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @EnableWebSecurity
@@ -33,6 +36,9 @@ public class WebSecurityConfig {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -41,21 +47,38 @@ public class WebSecurityConfig {
         http
 
                 .formLogin((formLogin) -> formLogin.disable())  //추가
+                //JWT 토큰 사용한 로그인(BEARER 방식)
+                .httpBasic(httpBasic -> httpBasic.disable())
+
+                //소셜 로그인
+                .oauth2Login(oauth2Login -> oauth2Login
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler(oAuth2LoginFailureHandler)
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)))
+
                 .csrf((csrfConfig) ->
                         csrfConfig.disable())
+                
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
                                 .requestMatchers("/**").permitAll()
                                 .requestMatchers("/h2-console/**").permitAll()  //누구나 h2-console 접속 허용
+                                .requestMatchers("/").permitAll()
+                                .requestMatchers("/sign-up").permitAll()
                                 .anyRequest().authenticated()
                 )
+
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .headers(headers ->
                         headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+
 
         http.addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
         http.addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
         return http.build();
-        //모든 주소에 대한 권한 풀어 로그인 화면 없이이용할 수 있도록
     }
     @Bean
     PasswordEncoder passwordEncoder() {
