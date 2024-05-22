@@ -24,6 +24,9 @@ import java.util.Map;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final UserRepository userRepository;
 
+    private static final String NAVER = "naver";
+    private static final String KAKAO = "kakao";
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         log.info("CustomOAuth2UserService.loadUser() 실행 - OAuth2 로그인 요청 진입");
@@ -44,8 +47,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         SocialType socialType = getSocialType(registrationId);
         String userNameAttributeName = userRequest.getClientRegistration()
-                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-        Map<String, Object> attributes = oAuth2User.getAttributes();
+                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); //oauth2 로그인 시 PK 키 값
+        Map<String, Object> attributes = oAuth2User.getAttributes();    //소셜 로그인에서 API가 제공하는 userInfo의 JSON 값(유저정보데이터)
 
         /*
         socialType에 따라 유저 정보를 통해 OAuthAttribute 객체 생성
@@ -70,7 +73,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private SocialType getSocialType(String registrationId) {
-        //Google 이외의 소셜 로그인이 있는 경우, if로 처리
+        if (NAVER.equals(registrationId)) {
+            return SocialType.NAVER;
+        }
+        if (KAKAO.equals(registrationId)) {
+            return SocialType.KAKAO;
+        }
         return SocialType.GOOGLE;
     }
 

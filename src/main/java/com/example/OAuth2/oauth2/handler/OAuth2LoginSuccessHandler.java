@@ -3,6 +3,7 @@ package com.example.OAuth2.oauth2.handler;
 import com.example.OAuth2.jwt.service.JwtService;
 import com.example.OAuth2.oauth2.CustomOAuth2User;
 import com.example.OAuth2.user.Role;
+import com.example.OAuth2.user.entity.User;
 import com.example.OAuth2.user.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,13 +35,19 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             if (oAuth2User.getRole() == Role.GUEST) {
                 String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
                 response.addHeader(jwtService.getAccessHeader(), "BEARER " + accessToken);
+                //log.info("Role=GUEST");
                 //프론트의 회원 가입 추가 정보 입력 폼으로 리다이렉트
-                response.sendRedirect("oauth2/sign-up");
+                //response.sendRedirect("oauth2/sign-up");
+
+                User findUser = userRepository.findByEmail(oAuth2User.getEmail())
+                                .orElseThrow(() -> new IllegalArgumentException("이메일에 해당하는 유저가 없습니다."));
+                findUser.authorizeUser();
 
                 jwtService.sendAccessAndRefreshToken(response, accessToken, null);
             }
             else {
                 //로그인 성공한 경우 access, refresh token 생성
+                //log.info("Role=USER");
                 loginSuccess(response, oAuth2User);
             }
         } catch (Exception e) {
