@@ -20,11 +20,11 @@ public class User {
 
     private String email;
     private String password;
-    private String nickname;
+    private String name;
     private String imageUrl;    //프로필 URL
     private int age;
     private String city;
-
+    private String nickname;
     @Enumerated(EnumType.STRING)
     private Role role;
 

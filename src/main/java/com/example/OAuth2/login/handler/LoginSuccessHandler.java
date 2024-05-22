@@ -3,6 +3,7 @@ package com.example.OAuth2.login.handler;
 import com.example.OAuth2.YamlPropertySourceFactory;
 import com.example.OAuth2.jwt.service.JwtService;
 import com.example.OAuth2.user.repository.UserRepository;
+import com.example.OAuth2.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

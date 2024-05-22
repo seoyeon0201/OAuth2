@@ -59,11 +59,10 @@ public class JwtService {
 
         Date now = new Date();
         return JWT.create()
-                .withSubject(ACCESS_TOKEN_SUBJECT)
-                .withExpiresAt(new Date(now.getTime() + accessTokenExpirationPeriod))
-
-                .withClaim(EMAIL_CLAIM, email)
-                .sign(Algorithm.HMAC512(secretKey));
+                .withSubject(ACCESS_TOKEN_SUBJECT)  //jwt 이름
+                .withExpiresAt(new Date(now.getTime() + accessTokenExpirationPeriod))//jwt 만료시간. 설정하지 않는 경우 무한 지속
+                .withClaim(EMAIL_CLAIM, email) //jwt의 payload부분에서 private 설정. private 이름과 그 내용
+                .sign(Algorithm.HMAC512(secretKey));    //어떤 해싱 알고리즘으로 해시하고 어떤 시크릿키 사용하는지 결정
     }
 
     /*
@@ -145,20 +144,18 @@ public class JwtService {
         }
     }
 
-
-
     /*
     AccessToken 헤더 설정
      */
     public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
-        response.setHeader(accessHeader, accessToken);
+        response.setHeader(accessHeader, "BEARER " + accessToken);
     }
 
     /*
     RefreshToken 헤더 설정
      */
     public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
-        response.setHeader(refreshHeader, refreshToken);
+        response.setHeader(refreshHeader,"BEARER " + refreshToken);
     }
 
     /*
@@ -168,7 +165,10 @@ public class JwtService {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
                         //DB에 email이 일치하는 회원이 있는 경우
-                        user -> user.updateRefreshToken(refreshToken),
+                        user -> {
+                            user.updateRefreshToken(refreshToken);
+                            userRepository.save(user);
+                        },
                         //DB에 email이 일치하는 회원이 없는 경우
                         () -> new Exception("일치하는 회원이 없습니다.")
                 );
