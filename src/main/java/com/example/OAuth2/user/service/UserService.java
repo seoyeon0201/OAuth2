@@ -39,6 +39,7 @@ public class UserService {
                 .email(userSignUpDto.getEmail())
                 .password(userSignUpDto.getPassword())
                 .nickname(userSignUpDto.getNickname())
+                .name(userSignUpDto.getName())
                 .age(userSignUpDto.getAge())
                 .city(userSignUpDto.getCity())
                 .role(Role.USER)
@@ -47,4 +48,5 @@ public class UserService {
         user.passwordEncode(passwordEncoder);
         userRepository.save(user);
     }
+
 }

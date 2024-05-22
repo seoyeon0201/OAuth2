@@ -34,7 +34,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
     public CustomJsonUsernamePasswordAuthenticationFilter(ObjectMapper objectMapper) {
         super(DEFAULT_LOGIN_PATH_REQUEST_MATCHER);
         this.objectMapper = objectMapper;
-        log.info("6ObjectMapper");
+        //log.info("6ObjectMapper");
     }
 
     /*
@@ -45,7 +45,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
         if (request.getContentType() == null || !request.getContentType().equals(CONTENT_TYPE)) {
             throw new AuthenticationServiceException("Authentication Content-Type not supported: "+ request.getContentType());
         }
-        log.info("7CustomJsonUsernamePassworAuthenticationFilter");
+        //log.info("7CustomJsonUsernamePassworAuthenticationFilter");
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
 

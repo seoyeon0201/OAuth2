@@ -10,6 +10,7 @@ import com.example.OAuth2.oauth2.handler.OAuth2LoginFailureHandler;
 import com.example.OAuth2.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.example.OAuth2.oauth2.service.CustomOAuth2UserService;
 import com.example.OAuth2.user.repository.UserRepository;
+import com.example.OAuth2.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
@@ -72,8 +73,9 @@ public class WebSecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .headers(headers ->
-                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+//                .headers(headers ->
+//                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 
 
         http.addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
