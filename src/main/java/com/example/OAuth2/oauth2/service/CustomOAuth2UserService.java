@@ -27,6 +27,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private static final String NAVER = "naver";
     private static final String KAKAO = "kakao";
 
+    //Authorization Server에서 token 발급 받아 Resource Server에서 User 정보 가져온 후 loadUser() 사용
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         log.info("CustomOAuth2UserService.loadUser() 실행 - OAuth2 로그인 요청 진입");

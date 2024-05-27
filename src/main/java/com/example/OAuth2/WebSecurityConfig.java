@@ -55,7 +55,7 @@ public class WebSecurityConfig {
                 .oauth2Login(oauth2Login -> oauth2Login
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(oAuth2LoginFailureHandler)
-                        .userInfoEndpoint(userInfo -> userInfo
+                        .userInfoEndpoint(userInfo -> userInfo          //최종 사용자(리소스 소유자)의 사용자 속성 획득하고 customOAuth2UserService 동작
                                 .userService(customOAuth2UserService)))
 
                 .csrf((csrfConfig) ->
