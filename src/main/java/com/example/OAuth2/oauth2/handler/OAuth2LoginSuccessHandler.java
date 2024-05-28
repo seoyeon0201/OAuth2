@@ -2,6 +2,7 @@ package com.example.OAuth2.oauth2.handler;
 
 import com.example.OAuth2.jwt.service.JwtService;
 import com.example.OAuth2.oauth2.CustomOAuth2User;
+import com.example.OAuth2.s3.service.FileUploadService;
 import com.example.OAuth2.user.Role;
 import com.example.OAuth2.user.entity.User;
 import com.example.OAuth2.user.repository.UserRepository;

@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 application-jwt.yml
 application-oauth.yml
+application-aws.yml
 
 ### STS ###
 .apt_generated
