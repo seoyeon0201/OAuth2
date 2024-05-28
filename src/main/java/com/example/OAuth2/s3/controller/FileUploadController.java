@@ -1,9 +1,11 @@
-package com.example.OAuth2.s3;
+package com.example.OAuth2.s3.controller;
 
+import com.amazonaws.Response;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.OAuth2.YamlPropertySourceFactory;
+import com.example.OAuth2.s3.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -23,26 +25,18 @@ import java.io.IOException;
 @PropertySource(value="classpath:application-aws.yml",factory= YamlPropertySourceFactory.class)
 public class FileUploadController {
     private final AmazonS3Client amazonS3Client;
+    private final FileUploadService fileUploadService;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     @PostMapping
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        try {
-            String fileName = file.getOriginalFilename();
-            String fileUrl = "https://"+bucket+"/test"+fileName;
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
-
-            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-
-            return ResponseEntity.ok(fileUrl);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return fileUploadService.uploadS3(file);
     }
 
+    @PostMapping("/social")
+    public ResponseEntity<String> uploadSocialImage(@RequestParam("email") String email, @RequestParam("url") String url) throws IOException {
+        return fileUploadService.uploadS3Social(email, url);
+    }
 }
