@@ -2,6 +2,7 @@ package com.example.OAuth2.oauth2.service;
 
 import com.example.OAuth2.oauth2.CustomOAuth2User;
 import com.example.OAuth2.oauth2.OAuthAttributes;
+import com.example.OAuth2.s3.service.FileUploadService;
 import com.example.OAuth2.user.SocialType;
 import com.example.OAuth2.user.entity.User;
 import com.example.OAuth2.user.repository.UserRepository;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -23,10 +25,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final UserRepository userRepository;
+    private final FileUploadService fileUploadService;
 
     private static final String NAVER = "naver";
     private static final String KAKAO = "kakao";
 
+    //Authorization Server에서 token 발급 받아 Resource Server에서 User 정보 가져온 후 loadUser() 사용
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         log.info("CustomOAuth2UserService.loadUser() 실행 - OAuth2 로그인 요청 진입");
@@ -59,6 +63,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         getUser() 메소드로 User 객체 생성 후 반환
          */
         User createdUser = getUser(extractAttributes, socialType);
+
+        /*
+        소셜로그인으로 받아온 image s3에 저장
+         */
+        try {
+            fileUploadService.uploadS3Social(createdUser.getEmail(), createdUser.getImageUrl());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         /*
         DefaultOAuth2User를 구현한 CustomOAuth2User 객체 생성해 반환
